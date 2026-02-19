@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Conexión Supabase</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Sistema de Conexión</h1>
+            <p class="subtitle">Verificación de conexión a API Rest + Supabase</p>
+        </header>
+
+        <main>
+            <!-- Sección de Estado -->
+            <section class="status-section">
+                <h2>Estado de Conexión</h2>
+                <div class="status-card">
+                    <div id="statusIndicator" class="status-indicator loading"></div>
+                    <div class="status-content">
+                        <h3 id="statusTitle">Verificando conexión...</h3>
+                        <p id="statusMessage">Conectando con la API...</p>
+                        <p id="statusDetails" class="status-details"></p>
+                        <p id="timestamp" class="timestamp"></p>
+                    </div>
+                </div>
+                <button id="retryBtn" class="btn btn-primary" onclick="checkConnection()">
+                    🔄 Verificar de nuevo
+                </button>
+            </section>
+
+            <!-- Sección de Datos -->
+            <section class="data-section">
+                <h2>Gestionar Datos</h2>
+                
+                <!-- Formulario para crear datos -->
+                <div class="form-container">
+                    <h3>Crear nuevo registro</h3>
+                    <form id="dataForm">
+                        <div class="form-group">
+                            <label for="title">Título:</label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                name="title" 
+                                placeholder="Ingresa el título" 
+                                required
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Descripción:</label>
+                            <textarea 
+                                id="description" 
+                                name="description" 
+                                placeholder="Ingresa la descripción" 
+                                rows="4" 
+                                required
+                            ></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </form>
+                </div>
+
+                <!-- Listado de datos -->
+                <div class="data-list-container">
+                    <h3>Datos en la base de datos</h3>
+                    <button id="loadDataBtn" class="btn btn-secondary" onclick="loadData()">
+                        📋 Cargar datos
+                    </button>
+                    <div id="dataList" class="data-list"></div>
+                </div>
+            </section>
+
+            <!-- Sección de Logs -->
+            <section class="logs-section">
+                <h2>Registro de Actividades</h2>
+                <div id="logs" class="logs"></div>
+                <button id="clearLogsBtn" class="btn btn-secondary" onclick="clearLogs()">
+                    🗑️ Limpiar logs
+                </button>
+            </section>
+        </main>
+
+        <footer>
+            <p>API Rest + Supabase | Clase Node.js</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

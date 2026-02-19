@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clientes - API Clientes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Clientes</h1>
+      <p class="subtitle">Interfaz simple para consumir la API en el puerto 3030</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Crear / Editar Cliente</h2>
+        <form id="clienteForm">
+          <input type="hidden" id="id_cliente" />
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" required />
+          </div>
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input id="apellido" required />
+          </div>
+          <div class="form-group">
+            <label for="dni">DNI</label>
+            <input id="dni" required />
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input id="telefono" />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" required />
+          </div>
+          <div class="form-group">
+            <label for="fecha_alta">Fecha de alta</label>
+            <input id="fecha_alta" type="date" />
+          </div>
+          <div style="display:flex;gap:8px">
+            <button type="submit" class="btn btn-success" id="saveBtn">Guardar</button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+            <button type="button" class="btn btn-primary" id="reloadBtn">🔄 Recargar lista</button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>Listado de Clientes</h2>
+        <div id="clientesList"></div>
+      </section>
+
+      <section>
+        <h2>Logs</h2>
+        <div id="logs" class="logs"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Usando API: http://localhost:3030/api/clientes</p>
+    </footer>
+  </div>
+
+  <script src="clientes.js"></script>
+</body>
+</html>
