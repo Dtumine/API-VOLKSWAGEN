@@ -131,12 +131,9 @@ app.get('/api/clientes/:id', async (req, res) => {
     }
 
     res.json({
-  status: 'success',
-  data: {
-    ...data,
-    email: data.mail
-  }
-});
+      status: 'success',
+      data: data
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',

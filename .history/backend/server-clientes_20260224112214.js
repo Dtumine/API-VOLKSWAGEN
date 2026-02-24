@@ -85,16 +85,11 @@ app.get('/api/clientes', async (req, res) => {
       });
     }
 
-    const mappedData = (data || []).map(c => ({
-  ...c,
-  email: c.mail
-}));
-
-res.json({
-  status: 'success',
-  total: mappedData.length,
-  data: mappedData
-});
+    res.json({
+      status: 'success',
+      total: data ? data.length : 0,
+      data: data || []
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -131,12 +126,9 @@ app.get('/api/clientes/:id', async (req, res) => {
     }
 
     res.json({
-  status: 'success',
-  data: {
-    ...data,
-    email: data.mail
-  }
-});
+      status: 'success',
+      data: data
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -162,14 +154,14 @@ app.post('/api/clientes', async (req, res) => {
     const { data, error } = await supabase
       .from('clientes')
       .insert([
-     {
+  {
     nombre,
     apellido,
     dni,
     telefono: telefono || null,
     mail: email, // 👈 mapeo correcto
     fecha_alta: fecha_alta || new Date().toISOString()
-   }
+  }
    ])
       
       .select();
@@ -212,12 +204,12 @@ app.put('/api/clientes/:id', async (req, res) => {
     const { data, error } = await supabase
       .from('clientes')
       .update({
-       nombre,
-       apellido,
-       dni,
-       telefono,
-       mail: email // 👈 mapeo correcto
-       })
+        nombre,
+        apellido,
+        dni,
+        telefono,
+        email
+      })
       .eq('id_cliente', id)
       .select();
 

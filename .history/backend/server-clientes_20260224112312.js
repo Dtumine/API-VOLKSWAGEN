@@ -85,16 +85,11 @@ app.get('/api/clientes', async (req, res) => {
       });
     }
 
-    const mappedData = (data || []).map(c => ({
-  ...c,
-  email: c.mail
-}));
-
-res.json({
-  status: 'success',
-  total: mappedData.length,
-  data: mappedData
-});
+    res.json({
+      status: 'success',
+      total: data ? data.length : 0,
+      data: data || []
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -131,12 +126,9 @@ app.get('/api/clientes/:id', async (req, res) => {
     }
 
     res.json({
-  status: 'success',
-  data: {
-    ...data,
-    email: data.mail
-  }
-});
+      status: 'success',
+      data: data
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -215,9 +207,9 @@ app.put('/api/clientes/:id', async (req, res) => {
        nombre,
        apellido,
        dni,
-       telefono,
-       mail: email // 👈 mapeo correcto
-       })
+  telefono,
+  mail: email // 👈 mapeo correcto
+})
       .eq('id_cliente', id)
       .select();
 

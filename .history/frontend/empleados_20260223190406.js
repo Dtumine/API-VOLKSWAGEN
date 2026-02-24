@@ -1,4 +1,4 @@
-const API_BASE = 'https://api-empleados-i8xz.onrender.com/api/empleados';
+const API_BASE = 'https://api-empleados-i8xz.onrender.com/api/';
 
 const logs = document.getElementById('logs');
 const empleadosList = document.getElementById('empleadosList');

@@ -1,4 +1,4 @@
-const API_BASE ='https://api-clientes-6nvx.onrender.com/api/clientes';
+const API_BASE = https://api-clientes-6nvx.onrender.com/api/clientes;
 
 const logs = document.getElementById('logs');
 const clientesList = document.getElementById('clientesList');

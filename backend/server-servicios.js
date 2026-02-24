@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración de Supabase (misma que la otra API)
+// Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
@@ -38,7 +38,7 @@ app.get('/api/status', async (req, res) => {
     }
 
     // Intentar una consulta simple para verificar la conexión
-    const { data, error } = await supabase.from('clientes').select('*').limit(1);
+    const { data, error } = await supabase.from('servicios').select('*').limit(1);
     
     if (error) {
       return res.status(500).json({
@@ -50,7 +50,7 @@ app.get('/api/status', async (req, res) => {
 
     res.json({
       status: 'success',
-      message: 'Conexión exitosa con Supabase (Tabla clientes)',
+      message: 'Conexión exitosa con Supabase (Tabla servicios)',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -62,8 +62,8 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// 2. Ruta para obtener todos los clientes
-app.get('/api/clientes', async (req, res) => {
+// 2. Ruta para obtener todos los servicios
+app.get('/api/servicios', async (req, res) => {
   try {
     if (connectionStatus === 'error-config') {
       return res.status(500).json({
@@ -73,28 +73,23 @@ app.get('/api/clientes', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('clientes')
+      .from('servicios')
       .select('*')
-      .order('id_cliente', { ascending: true });
+      .order('id_servicio', { ascending: true });
     
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener clientes',
+        message: 'Error al obtener servicios',
         details: error.message
       });
     }
 
-    const mappedData = (data || []).map(c => ({
-  ...c,
-  email: c.mail
-}));
-
-res.json({
-  status: 'success',
-  total: mappedData.length,
-  data: mappedData
-});
+    res.json({
+      status: 'success',
+      total: data ? data.length : 0,
+      data: data || []
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -104,8 +99,8 @@ res.json({
   }
 });
 
-// 3. Ruta para obtener un cliente por ID
-app.get('/api/clientes/:id', async (req, res) => {
+// 3. Ruta para obtener un servicio por ID
+app.get('/api/servicios/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -117,26 +112,23 @@ app.get('/api/clientes/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('clientes')
+      .from('servicios')
       .select('*')
-      .eq('id_cliente', id)
+      .eq('id_servicio', id)
       .single();
     
     if (error) {
       return res.status(404).json({
         status: 'error',
-        message: 'Cliente no encontrado',
+        message: 'Servicio no encontrado',
         details: error.message
       });
     }
 
     res.json({
-  status: 'success',
-  data: {
-    ...data,
-    email: data.mail
-  }
-});
+      status: 'success',
+      data: data
+    });
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -146,45 +138,48 @@ app.get('/api/clientes/:id', async (req, res) => {
   }
 });
 
-// 4. Ruta para crear un cliente
-app.post('/api/clientes', async (req, res) => {
+// 4. Ruta para crear un servicio
+app.post('/api/servicios', async (req, res) => {
   try {
-    const { nombre, apellido, dni, telefono, email, fecha_alta } = req.body;
+    const { id_auto, id_empleado, id_cliente, fecha_servicio, descripcion, costo, kilometraje, fecha_ingreso, fecha_entrega, estado } = req.body;
 
     // Validación
-    if (!nombre || !apellido || !dni || !email) {
+    if (!id_auto || !id_empleado || !id_cliente || !fecha_servicio || !descripcion) {
       return res.status(400).json({
         status: 'error',
-        message: 'Los campos nombre, apellido, dni y email son obligatorios'
+        message: 'Los campos id_auto, id_empleado, id_cliente, fecha_servicio y descripcion son obligatorios'
       });
     }
 
     const { data, error } = await supabase
-      .from('clientes')
+      .from('servicios')
       .insert([
-     {
-    nombre,
-    apellido,
-    dni,
-    telefono: telefono || null,
-    mail: email, // 👈 mapeo correcto
-    fecha_alta: fecha_alta || new Date().toISOString()
-   }
-   ])
-      
+        {
+          id_auto,
+          id_empleado,
+          id_cliente,
+          fecha_servicio,
+          descripcion,
+          costo: costo || 0.00,
+          kilometraje: kilometraje || 0,
+          fecha_ingreso: fecha_ingreso || new Date().toISOString(),
+          fecha_entrega: fecha_entrega || null,
+          estado: estado || 'pendiente'
+        }
+      ])
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al crear cliente',
+        message: 'Error al crear servicio',
         details: error.message
       });
     }
 
     res.status(201).json({
       status: 'success',
-      message: 'Cliente creado exitosamente',
+      message: 'Servicio creado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -196,11 +191,11 @@ app.post('/api/clientes', async (req, res) => {
   }
 });
 
-// 5. Ruta para actualizar un cliente
-app.put('/api/clientes/:id', async (req, res) => {
+// 5. Ruta para actualizar un servicio
+app.put('/api/servicios/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, apellido, dni, telefono, email } = req.body;
+    const { id_auto, id_empleado, id_cliente, fecha_servicio, descripcion, costo, kilometraje, fecha_ingreso, fecha_entrega, estado } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -210,21 +205,26 @@ app.put('/api/clientes/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('clientes')
+      .from('servicios')
       .update({
-       nombre,
-       apellido,
-       dni,
-       telefono,
-       mail: email // 👈 mapeo correcto
-       })
-      .eq('id_cliente', id)
+        id_auto,
+        id_empleado,
+        id_cliente,
+        fecha_servicio,
+        descripcion,
+        costo,
+        kilometraje,
+        fecha_ingreso,
+        fecha_entrega,
+        estado
+      })
+      .eq('id_servicio', id)
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar cliente',
+        message: 'Error al actualizar servicio',
         details: error.message
       });
     }
@@ -232,13 +232,13 @@ app.put('/api/clientes/:id', async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).json({
         status: 'error',
-        message: 'Cliente no encontrado'
+        message: 'Servicio no encontrado'
       });
     }
 
     res.json({
       status: 'success',
-      message: 'Cliente actualizado exitosamente',
+      message: 'Servicio actualizado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -250,8 +250,8 @@ app.put('/api/clientes/:id', async (req, res) => {
   }
 });
 
-// 6. Ruta para eliminar un cliente
-app.delete('/api/clientes/:id', async (req, res) => {
+// 6. Ruta para eliminar un servicio
+app.delete('/api/servicios/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -263,15 +263,15 @@ app.delete('/api/clientes/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('clientes')
+      .from('servicios')
       .delete()
-      .eq('id_cliente', id)
+      .eq('id_servicio', id)
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar cliente',
+        message: 'Error al eliminar servicio',
         details: error.message
       });
     }
@@ -279,13 +279,13 @@ app.delete('/api/clientes/:id', async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).json({
         status: 'error',
-        message: 'Cliente no encontrado'
+        message: 'Servicio no encontrado'
       });
     }
 
     res.json({
       status: 'success',
-      message: 'Cliente eliminado exitosamente',
+      message: 'Servicio eliminado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -308,8 +308,8 @@ app.use((err, req, res, next) => {
 });
 
 // Puerto
-const PORT = process.env.PORT_CLIENTES || 3030;
+const PORT = process.env.PORT_SERVICIOS || 4000;
 app.listen(PORT, () => {
-  console.log(`✅ API Clientes ejecutándose en http://localhost:${PORT}`);
+  console.log(`✅ API Servicios ejecutándose en http://localhost:${PORT}`);
   console.log(`Estado de conexión: ${connectionStatus}`);
 });
