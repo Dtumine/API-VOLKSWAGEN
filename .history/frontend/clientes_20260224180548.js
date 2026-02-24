@@ -193,6 +193,28 @@ function renderClientes(items) {
 }
 
 
+function filterClientes() {
+  const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+  let filtered = allClientes;
+
+  if (currentLetter) {
+    filtered = filtered.filter(c =>
+      (c.nombre || '').toUpperCase().startsWith(currentLetter)
+    );
+  }
+
+  if (searchText) {
+    filtered = filtered.filter(c =>
+      (c.nombre || '').toLowerCase().includes(searchText) ||
+      (c.apellido || '').toLowerCase().includes(searchText) ||
+      (c.dni || '').toLowerCase().includes(searchText)
+    );
+  }
+
+  renderClientes(filtered);
+}
+
 function attachActions() {
   document.querySelectorAll('.btn-view').forEach(b =>
     b.addEventListener('click', async e => viewCliente(e.target.dataset.id))
@@ -208,27 +230,6 @@ function attachActions() {
       await deleteCliente(e.target.dataset.id);
     })
   );
-} 
-
-
-function filterClientes() {
-  const searchText = document.getElementById('searchInput').value
-    .toLowerCase()
-    .trim();
-
-  if (!searchText) {
-    renderClientes(allClientes);
-    return;
-  }
-
-  const filtered = allClientes.filter(c =>
-    (c.nombre || '').toLowerCase().startsWith(searchText) ||
-    (c.apellido || '').toLowerCase().startsWith(searchText) ||
-    (c.dni || '').toLowerCase().startsWith(searchText) ||
-    (c.email || '').toLowerCase().startsWith(searchText)
-  );
-
-  renderClientes(filtered);
 }
 
 window.addEventListener('load', () => {

@@ -4,6 +4,7 @@ const logs = document.getElementById('logs');
 const clientesList = document.getElementById('clientesList');
 const clienteForm = document.getElementById('clienteForm'); 
 let allClientes = [];
+let currentLetter = null;
 
 function addLog(msg, type = 'info') {
   const d = new Date().toLocaleTimeString();
@@ -34,8 +35,46 @@ async function loadClientes() {
 
     const items = result.data || []; 
     allClientes = items;
-     allClientes = items;
-     renderClientes(allClientes);
+    if (items.length === 0) {
+      clientesList.innerHTML = `<div class="empty-state"><p>No hay clientes</p></div>`;
+      addLog('No hay clientes', 'warning');
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Tel</th><th>Email</th><th>Fecha Alta</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector('tbody');
+
+    items.forEach(c => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${c.id_cliente}</td>
+        <td>${c.nombre || ''}</td>
+        <td>${c.apellido || ''}</td>
+        <td>${c.dni || ''}</td>
+        <td>${c.telefono || ''}</td>
+        <td>${c.email || ''}</td>
+        <td>${c.fecha_alta ? new Date(c.fecha_alta).toLocaleDateString() : ''}</td>
+        <td>
+          <button data-id="${c.id_cliente}" class="btn btn-secondary btn-view">Ver</button>
+          <button data-id="${c.id_cliente}" class="btn btn-primary btn-edit">Editar</button>
+          <button data-id="${c.id_cliente}" class="btn btn-danger btn-delete">Eliminar</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    clientesList.appendChild(table);
+
     // Attach actions
     document.querySelectorAll('.btn-view').forEach(b => b.addEventListener('click', async (e) => {
       const id = e.target.dataset.id;
@@ -144,92 +183,7 @@ clienteForm.addEventListener('submit', async (e) => {
 });
 
 document.getElementById('clearBtn').addEventListener('click', () => clearForm());
-document.getElementById('reloadBtn').addEventListener('click', () => loadClientes()); 
-document.getElementById('searchInput').addEventListener('input', filterClientes);
-
-function renderClientes(items) {
-  clientesList.innerHTML = '';
-
-  if (items.length === 0) {
-    clientesList.innerHTML = `<div class="empty-state"><p>No hay clientes</p></div>`;
-    return;
-  }
-
-  const table = document.createElement('table');
-  table.style.width = '100%';
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>ID</th><th>Nombre</th><th>Apellido</th><th>DNI</th><th>Tel</th><th>Email</th><th>Fecha Alta</th><th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
-
-  const tbody = table.querySelector('tbody');
-
-  items.forEach(c => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${c.id_cliente}</td>
-      <td>${c.nombre || ''}</td>
-      <td>${c.apellido || ''}</td>
-      <td>${c.dni || ''}</td>
-      <td>${c.telefono || ''}</td>
-      <td>${c.email || ''}</td>
-      <td>${c.fecha_alta ? new Date(c.fecha_alta).toLocaleDateString() : ''}</td>
-      <td>
-        <button data-id="${c.id_cliente}" class="btn btn-secondary btn-view">Ver</button>
-        <button data-id="${c.id_cliente}" class="btn btn-primary btn-edit">Editar</button>
-        <button data-id="${c.id_cliente}" class="btn btn-danger btn-delete">Eliminar</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  clientesList.appendChild(table);
-
-  attachActions();
-}
-
-
-function attachActions() {
-  document.querySelectorAll('.btn-view').forEach(b =>
-    b.addEventListener('click', async e => viewCliente(e.target.dataset.id))
-  );
-
-  document.querySelectorAll('.btn-edit').forEach(b =>
-    b.addEventListener('click', async e => editCliente(e.target.dataset.id))
-  );
-
-  document.querySelectorAll('.btn-delete').forEach(b =>
-    b.addEventListener('click', async e => {
-      if (!confirm('¿Eliminar cliente?')) return;
-      await deleteCliente(e.target.dataset.id);
-    })
-  );
-} 
-
-
-function filterClientes() {
-  const searchText = document.getElementById('searchInput').value
-    .toLowerCase()
-    .trim();
-
-  if (!searchText) {
-    renderClientes(allClientes);
-    return;
-  }
-
-  const filtered = allClientes.filter(c =>
-    (c.nombre || '').toLowerCase().startsWith(searchText) ||
-    (c.apellido || '').toLowerCase().startsWith(searchText) ||
-    (c.dni || '').toLowerCase().startsWith(searchText) ||
-    (c.email || '').toLowerCase().startsWith(searchText)
-  );
-
-  renderClientes(filtered);
-}
+document.getElementById('reloadBtn').addEventListener('click', () => loadClientes());
 
 window.addEventListener('load', () => {
   addLog('Interfaz de Clientes cargada', 'info');

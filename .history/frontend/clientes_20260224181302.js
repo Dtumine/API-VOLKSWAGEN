@@ -211,25 +211,7 @@ function attachActions() {
 } 
 
 
-function filterClientes() {
-  const searchText = document.getElementById('searchInput').value
-    .toLowerCase()
-    .trim();
 
-  if (!searchText) {
-    renderClientes(allClientes);
-    return;
-  }
-
-  const filtered = allClientes.filter(c =>
-    (c.nombre || '').toLowerCase().startsWith(searchText) ||
-    (c.apellido || '').toLowerCase().startsWith(searchText) ||
-    (c.dni || '').toLowerCase().startsWith(searchText) ||
-    (c.email || '').toLowerCase().startsWith(searchText)
-  );
-
-  renderClientes(filtered);
-}
 
 window.addEventListener('load', () => {
   addLog('Interfaz de Clientes cargada', 'info');

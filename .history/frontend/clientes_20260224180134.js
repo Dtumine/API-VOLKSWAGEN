@@ -4,6 +4,7 @@ const logs = document.getElementById('logs');
 const clientesList = document.getElementById('clientesList');
 const clienteForm = document.getElementById('clienteForm'); 
 let allClientes = [];
+let currentLetter = null;
 
 function addLog(msg, type = 'info') {
   const d = new Date().toLocaleTimeString();
@@ -34,8 +35,8 @@ async function loadClientes() {
 
     const items = result.data || []; 
     allClientes = items;
-     allClientes = items;
-     renderClientes(allClientes);
+   renderClientes(items);
+   createAlphabetFilter();
     // Attach actions
     document.querySelectorAll('.btn-view').forEach(b => b.addEventListener('click', async (e) => {
       const id = e.target.dataset.id;
@@ -145,7 +146,6 @@ clienteForm.addEventListener('submit', async (e) => {
 
 document.getElementById('clearBtn').addEventListener('click', () => clearForm());
 document.getElementById('reloadBtn').addEventListener('click', () => loadClientes()); 
-document.getElementById('searchInput').addEventListener('input', filterClientes);
 
 function renderClientes(items) {
   clientesList.innerHTML = '';
@@ -192,6 +192,64 @@ function renderClientes(items) {
   attachActions();
 }
 
+function createAlphabetFilter() {
+  const container = document.getElementById('alphabetFilter');
+  container.innerHTML = '';
+
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+  letters.forEach(letter => {
+    const btn = document.createElement('button');
+    btn.textContent = letter;
+    btn.style.margin = '2px';
+    btn.className = 'btn btn-secondary';
+
+    btn.addEventListener('click', () => {
+      currentLetter = letter;
+      filterClientes();
+    });
+
+    container.appendChild(btn);
+  });
+
+  // Botón limpiar filtro
+  const clearBtn = document.createElement('button');
+  clearBtn.textContent = 'Todos';
+  clearBtn.className = 'btn btn-primary';
+  clearBtn.style.marginLeft = '10px'; 
+
+  
+
+  clearBtn.addEventListener('click', () => {
+    currentLetter = null;
+    document.getElementById('searchInput').value = '';
+    renderClientes(allClientes);
+  });
+
+  container.appendChild(clearBtn);
+}
+
+function filterClientes() {
+  const searchText = document.getElementById('searchInput').value.toLowerCase();
+
+  let filtered = allClientes;
+
+  if (currentLetter) {
+    filtered = filtered.filter(c =>
+      (c.nombre || '').toUpperCase().startsWith(currentLetter)
+    );
+  }
+
+  if (searchText) {
+    filtered = filtered.filter(c =>
+      (c.nombre || '').toLowerCase().includes(searchText) ||
+      (c.apellido || '').toLowerCase().includes(searchText) ||
+      (c.dni || '').toLowerCase().includes(searchText)
+    );
+  }
+
+  renderClientes(filtered);
+}
 
 function attachActions() {
   document.querySelectorAll('.btn-view').forEach(b =>
@@ -208,27 +266,6 @@ function attachActions() {
       await deleteCliente(e.target.dataset.id);
     })
   );
-} 
-
-
-function filterClientes() {
-  const searchText = document.getElementById('searchInput').value
-    .toLowerCase()
-    .trim();
-
-  if (!searchText) {
-    renderClientes(allClientes);
-    return;
-  }
-
-  const filtered = allClientes.filter(c =>
-    (c.nombre || '').toLowerCase().startsWith(searchText) ||
-    (c.apellido || '').toLowerCase().startsWith(searchText) ||
-    (c.dni || '').toLowerCase().startsWith(searchText) ||
-    (c.email || '').toLowerCase().startsWith(searchText)
-  );
-
-  renderClientes(filtered);
 }
 
 window.addEventListener('load', () => {

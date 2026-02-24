@@ -212,9 +212,7 @@ function attachActions() {
 
 
 function filterClientes() {
-  const searchText = document.getElementById('searchInput').value
-    .toLowerCase()
-    .trim();
+  const searchText = document.getElementById('searchInput').value.toLowerCase();
 
   if (!searchText) {
     renderClientes(allClientes);
@@ -222,10 +220,10 @@ function filterClientes() {
   }
 
   const filtered = allClientes.filter(c =>
-    (c.nombre || '').toLowerCase().startsWith(searchText) ||
-    (c.apellido || '').toLowerCase().startsWith(searchText) ||
-    (c.dni || '').toLowerCase().startsWith(searchText) ||
-    (c.email || '').toLowerCase().startsWith(searchText)
+    (c.nombre || '').toLowerCase().includes(searchText) ||
+    (c.apellido || '').toLowerCase().includes(searchText) ||
+    (c.dni || '').toLowerCase().includes(searchText) ||
+    (c.email || '').toLowerCase().includes(searchText)
   );
 
   renderClientes(filtered);
