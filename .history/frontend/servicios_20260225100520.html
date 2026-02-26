@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Servicios - API Servicios</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Servicios</h1>
+      <p class="subtitle">Interfaz simple para consumir la API de Servicios</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Crear / Editar Servicio</h2>
+        <form id="servicioForm">
+          <input type="hidden" id="id_servicio" />
+          
+          
+
+          <div class="form-group">
+            <label for="fecha_servicio">Fecha de Servicio</label>
+            <input id="fecha_servicio" type="date" required />
+          </div>
+
+          <div class="form-group">
+  <label for="tipo_servicio">Tipo de Servicio</label>
+  <select id="tipo_servicio" required>
+    <option value="">-- Seleccione un tipo --</option>
+    <option value="Mantenimiento">Mantenimiento</option>
+    <option value="Reparación">Reparación</option>
+    <option value="Lavado">Lavado</option>
+    <option value="Cambio de Aceite">Cambio de Aceite</option>
+    <option value="Alineación">Alineación</option>
+    <option value="Otro">Otro</option>
+  </select>
+</div>
+
+          <div class="form-group">
+            <label for="costo">Costo</label>
+            <input id="costo" type="number" step="0.01" />
+          </div>
+
+          <div class="form-group">
+            <label for="kilometraje">Kilometraje</label>
+            <input id="kilometraje" type="number" />
+          </div>
+
+          <div class="form-group">
+            <label for="fecha_ingreso">Fecha de Ingreso</label>
+            <input id="fecha_ingreso" type="date" />
+          </div>
+
+          <div class="form-group">
+            <label for="fecha_entrega">Fecha de Entrega</label>
+            <input id="fecha_entrega" type="date" />
+          </div>
+
+          <div class="form-group">
+            <label for="estado">Estado</label>
+            <select id="estado">
+              <option value="pendiente">Pendiente</option>
+              <option value="en-proceso">En Proceso</option>
+              <option value="completado">Completado</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <button type="submit" class="btn btn-success" id="saveBtn">Guardar</button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+            <button type="button" class="btn btn-primary" id="reloadBtn">🔄 Recargar lista</button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>Listado de Servicios</h2>
+        <div id="serviciosList"></div>
+      </section>
+
+      <section>
+        <h2>Logs</h2>
+        <div id="logs" class="logs"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Usando API: https://api-servicios-926g.onrender.com/api/servicios</p>
+    </footer>
+  </div>
+
+  <script src="servicios.js"></script>
+</body>
+</html>
+

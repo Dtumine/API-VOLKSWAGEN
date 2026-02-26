@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Autos - API Autos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Autos</h1>
+      <p class="subtitle">Interfaz para consumir la API de Autos</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>Crear / Editar Auto</h2>
+        <form id="autoForm">
+          <input type="hidden" id="id_auto" />
+
+          <div class="form-group">
+            <label for="id_cliente">Cliente</label>
+            <select id="id_cliente" required></select>
+          </div>
+
+          <div class="form-group">
+            <label for="modelo">Modelo</label>
+            <input id="modelo" required />
+          </div>
+
+          <div class="form-group">
+            <label for="anio">Año</label>
+            <input id="anio" type="number" required />
+          </div>
+
+          <div class="form-group">
+            <label for="patente">Patente</label>
+            <input id="patente" required />
+          </div>
+
+          <div class="form-group">
+            <label for="kilometraje">Kilometraje</label>
+            <input id="kilometraje" type="number" />
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+            <button type="button" class="btn btn-primary" id="reloadBtn">🔄 Recargar lista</button>
+          </div>
+        </form>
+      </section>
+
+      <section>
+        <h2>Listado de Autos</h2>
+
+        <div style="margin-bottom:15px;">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="🔎 Buscar por modelo o patente..."
+            style="padding:8px;width:60%;margin-bottom:10px;"
+          />
+        </div>
+
+        <div id="autosList"></div>
+      </section>
+
+      <section>
+        <h2>Logs</h2>
+        <div id="logs" class="logs"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Usando API Autos</p>
+    </footer>
+  </div>
+
+  <script src="autos.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const express = require('express');
+// const express = require('express');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración de Supabase
+// Configuración de Supabase (misma que la otra API)
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
@@ -38,7 +38,7 @@ app.get('/api/status', async (req, res) => {
     }
 
     // Intentar una consulta simple para verificar la conexión
-    const { data, error } = await supabase.from('empleados').select('*').limit(1);
+    const { data, error } = await supabase.from('clientes').select('*').limit(1);
     
     if (error) {
       return res.status(500).json({
@@ -50,7 +50,7 @@ app.get('/api/status', async (req, res) => {
 
     res.json({
       status: 'success',
-      message: 'Conexión exitosa con Supabase (Tabla empleados)',
+      message: 'Conexión exitosa con Supabase (Tabla clientes)',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -62,8 +62,8 @@ app.get('/api/status', async (req, res) => {
   }
 });
 
-// 2. Ruta para obtener todos los empleados
-app.get('/api/empleados', async (req, res) => {
+// 2. Ruta para obtener todos los clientes
+app.get('/api/clientes', async (req, res) => {
   try {
     if (connectionStatus === 'error-config') {
       return res.status(500).json({
@@ -73,23 +73,28 @@ app.get('/api/empleados', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('empleados')
+      .from('clientes')
       .select('*')
-      .order('id_empleado', { ascending: true });
+      .order('id_cliente', { ascending: true });
     
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al obtener empleados',
+        message: 'Error al obtener clientes',
         details: error.message
       });
     }
 
-    res.json({
-      status: 'success',
-      total: data ? data.length : 0,
-      data: data || []
-    });
+    const mappedData = (data || []).map(c => ({
+  ...c,
+  email: c.mail
+}));
+
+res.json({
+  status: 'success',
+  total: mappedData.length,
+  data: mappedData
+});
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -99,8 +104,8 @@ app.get('/api/empleados', async (req, res) => {
   }
 });
 
-// 3. Ruta para obtener un empleado por ID
-app.get('/api/empleados/:id', async (req, res) => {
+// 3. Ruta para obtener un cliente por ID
+app.get('/api/clientes/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -112,23 +117,26 @@ app.get('/api/empleados/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('empleados')
+      .from('clientes')
       .select('*')
-      .eq('id_empleado', id)
+      .eq('id_cliente', id)
       .single();
     
     if (error) {
       return res.status(404).json({
         status: 'error',
-        message: 'Empleado no encontrado',
+        message: 'Cliente no encontrado',
         details: error.message
       });
     }
 
     res.json({
-      status: 'success',
-      data: data
-    });
+  status: 'success',
+  data: {
+    ...data,
+    email: data.mail
+  }
+});
   } catch (error) {
     res.status(500).json({
       status: 'error',
@@ -138,41 +146,45 @@ app.get('/api/empleados/:id', async (req, res) => {
   }
 });
 
-// 4. Ruta para crear un empleado
-app.post('/api/empleados', async (req, res) => {
+// 4. Ruta para crear un cliente
+app.post('/api/clientes', async (req, res) => {
   try {
-    const { nombre, apellido, puesto } = req.body;
+    const { nombre, apellido, dni, telefono, email, fecha_alta } = req.body;
 
     // Validación
-    if (!nombre || !apellido || !puesto) {
+    if (!nombre || !apellido || !dni || !email) {
       return res.status(400).json({
         status: 'error',
-        message: 'Los campos nombre, apellido y puesto son obligatorios'
+        message: 'Los campos nombre, apellido, dni y email son obligatorios'
       });
     }
 
     const { data, error } = await supabase
-      .from('empleados')
+      .from('clientes')
       .insert([
-        {
-          nombre,
-          apellido,
-          puesto
-        }
-      ])
+     {
+    nombre,
+    apellido,
+    dni,
+    telefono: telefono || null,
+    mail: email, // 👈 mapeo correcto
+    fecha_alta: fecha_alta || new Date().toISOString()
+   }
+   ])
+      
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al crear empleado',
+        message: 'Error al crear cliente',
         details: error.message
       });
     }
 
     res.status(201).json({
       status: 'success',
-      message: 'Empleado creado exitosamente',
+      message: 'Cliente creado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -184,11 +196,11 @@ app.post('/api/empleados', async (req, res) => {
   }
 });
 
-// 5. Ruta para actualizar un empleado
-app.put('/api/empleados/:id', async (req, res) => {
+// 5. Ruta para actualizar un cliente
+app.put('/api/clientes/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, apellido, puesto } = req.body;
+    const { nombre, apellido, dni, telefono, email } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -198,19 +210,21 @@ app.put('/api/empleados/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('empleados')
+      .from('clientes')
       .update({
-        nombre,
-        apellido,
-        puesto
-      })
-      .eq('id_empleado', id)
+       nombre,
+       apellido,
+       dni,
+       telefono,
+       mail: email // 👈 mapeo correcto
+       })
+      .eq('id_cliente', id)
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al actualizar empleado',
+        message: 'Error al actualizar cliente',
         details: error.message
       });
     }
@@ -218,13 +232,13 @@ app.put('/api/empleados/:id', async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).json({
         status: 'error',
-        message: 'Empleado no encontrado'
+        message: 'Cliente no encontrado'
       });
     }
 
     res.json({
       status: 'success',
-      message: 'Empleado actualizado exitosamente',
+      message: 'Cliente actualizado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -236,8 +250,8 @@ app.put('/api/empleados/:id', async (req, res) => {
   }
 });
 
-// 6. Ruta para eliminar un empleado
-app.delete('/api/empleados/:id', async (req, res) => {
+// 6. Ruta para eliminar un cliente
+app.delete('/api/clientes/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -249,15 +263,15 @@ app.delete('/api/empleados/:id', async (req, res) => {
     }
 
     const { data, error } = await supabase
-      .from('empleados')
+      .from('clientes')
       .delete()
-      .eq('id_empleado', id)
+      .eq('id_cliente', id)
       .select();
 
     if (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'Error al eliminar empleado',
+        message: 'Error al eliminar cliente',
         details: error.message
       });
     }
@@ -265,13 +279,13 @@ app.delete('/api/empleados/:id', async (req, res) => {
     if (!data || data.length === 0) {
       return res.status(404).json({
         status: 'error',
-        message: 'Empleado no encontrado'
+        message: 'Cliente no encontrado'
       });
     }
 
     res.json({
       status: 'success',
-      message: 'Empleado eliminado exitosamente',
+      message: 'Cliente eliminado exitosamente',
       data: data[0]
     });
   } catch (error) {
@@ -294,8 +308,8 @@ app.use((err, req, res, next) => {
 });
 
 // Puerto
-const PORT = process.env.PORT_EMPLEADOS || 3090;
+const PORT = process.env.PORT_CLIENTES || 3030;
 app.listen(PORT, () => {
-  console.log(`✅ API Empleados ejecutándose en http://localhost:${PORT}`);
+  console.log(`✅ API Clientes ejecutándose en http://localhost:${PORT}`);
   console.log(`Estado de conexión: ${connectionStatus}`);
 });

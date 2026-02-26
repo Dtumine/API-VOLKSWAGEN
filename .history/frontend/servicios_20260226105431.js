@@ -100,6 +100,7 @@ async function loadServicios() {
 
   try {
 
+    // 🔥 Traemos todo en paralelo
     const [servRes, autoRes, empRes, cliRes] = await Promise.all([
       fetch(API_BASE),
       fetch(API_AUTOS),
@@ -107,25 +108,10 @@ async function loadServicios() {
       fetch(API_CLIENTES)
     ]);
 
-    const servJson = await servRes.json();
-    const autoJson = await autoRes.json();
-    const empJson = await empRes.json();
-    const cliJson = await cliRes.json();
-
-    const servicios = servJson.data || servJson || [];
-    const autos = autoJson.data || autoJson || [];
-    const empleados = empJson.data || empJson || [];
-    const clientes = cliJson.data || cliJson || [];
-
-    console.log("Servicios:", servicios);
-    console.log("Autos:", autos);
-    console.log("Empleados:", empleados);
-    console.log("Clientes:", clientes);
-
-    if (!servicios.length) {
-      serviciosList.innerHTML = "<p>No hay servicios cargados.</p>";
-      return;
-    }
+    const servicios = (await servRes.json()).data || [];
+    const autos = (await autoRes.json()).data || [];
+    const empleados = (await empRes.json()).data || [];
+    const clientes = (await cliRes.json()).data || [];
 
     const table = document.createElement('table');
 
@@ -181,10 +167,10 @@ async function loadServicios() {
     serviciosList.appendChild(table);
 
   } catch (error) {
-    console.error("ERROR:", error);
-    serviciosList.innerHTML = "<p>Error cargando servicios</p>";
+    addLog('Error cargando servicios');
   }
 }
+
 // ===========================
 // 🔹 Editar
 // ===========================

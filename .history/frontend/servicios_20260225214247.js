@@ -81,6 +81,9 @@ async function loadAutoByCliente(idCliente) {
       🚗 ${auto.modelo || ''} <br>
       Año: ${auto.anio || 'No especificado'} <br>
       Patente: ${auto.patente || 'Sin patente'}
+
+
+      
     `;
 
     hiddenAutoInput.value = auto.id_auto;
@@ -98,93 +101,43 @@ async function loadServicios() {
 
   serviciosList.innerHTML = '';
 
-  try {
+  const res = await fetch(API_BASE);
+  const result = await res.json();
+  const items = result.data || [];
 
-    const [servRes, autoRes, empRes, cliRes] = await Promise.all([
-      fetch(API_BASE),
-      fetch(API_AUTOS),
-      fetch(API_EMPLEADOS),
-      fetch(API_CLIENTES)
-    ]);
+  const table = document.createElement('table');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>ID</th><th>Cliente</th><th>Auto</th>
+        <th>Empleado</th><th>Tipo</th><th>Estado</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
 
-    const servJson = await servRes.json();
-    const autoJson = await autoRes.json();
-    const empJson = await empRes.json();
-    const cliJson = await cliRes.json();
+  const tbody = table.querySelector('tbody');
 
-    const servicios = servJson.data || servJson || [];
-    const autos = autoJson.data || autoJson || [];
-    const empleados = empJson.data || empJson || [];
-    const clientes = cliJson.data || cliJson || [];
-
-    console.log("Servicios:", servicios);
-    console.log("Autos:", autos);
-    console.log("Empleados:", empleados);
-    console.log("Clientes:", clientes);
-
-    if (!servicios.length) {
-      serviciosList.innerHTML = "<p>No hay servicios cargados.</p>";
-      return;
-    }
-
-    const table = document.createElement('table');
-
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Cliente</th>
-          <th>Auto</th>
-          <th>Empleado</th>
-          <th>Tipo</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+  items.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${s.id_servicio}</td>
+      <td>${s.id_cliente}</td>
+      <td>${s.id_auto}</td>
+      <td>${s.id_empleado}</td>
+      <td>${s.tipo_servicio}</td>
+      <td>${s.estado}</td>
+      <td>
+        <button class="btn-edit" onclick="editServicio(${s.id_servicio})">Editar</button>
+        <button class="btn-delete" onclick="deleteServicio(${s.id_servicio})">Eliminar</button>
+      </td>
     `;
+    tbody.appendChild(tr);
+  });
 
-    const tbody = table.querySelector('tbody');
-
-    servicios.forEach(s => {
-
-      const auto = autos.find(a => a.id_auto == s.id_auto);
-      const empleado = empleados.find(e => e.id_empleado == s.id_empleado);
-      const cliente = auto
-        ? clientes.find(c => c.id_cliente == auto.id_cliente)
-        : null;
-
-      const nombreCliente = cliente ? cliente.nombre : 'Sin cliente';
-      const nombreEmpleado = empleado ? empleado.nombre : 'Sin empleado';
-      const nombreAuto = auto
-        ? `${auto.modelo || ''} - ${auto.patente || ''}`
-        : 'Sin auto';
-
-      const tr = document.createElement('tr');
-
-      tr.innerHTML = `
-        <td>${s.id_servicio}</td>
-        <td>${nombreCliente}</td>
-        <td>${nombreAuto}</td>
-        <td>${nombreEmpleado}</td>
-        <td>${s.tipo_servicio}</td>
-        <td>${s.estado}</td>
-        <td>
-          <button class="btn-edit" onclick="editServicio(${s.id_servicio})">Editar</button>
-          <button class="btn-delete" onclick="deleteServicio(${s.id_servicio})">Eliminar</button>
-        </td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-
-    serviciosList.appendChild(table);
-
-  } catch (error) {
-    console.error("ERROR:", error);
-    serviciosList.innerHTML = "<p>Error cargando servicios</p>";
-  }
+  serviciosList.appendChild(table);
 }
+
 // ===========================
 // 🔹 Editar
 // ===========================
@@ -199,6 +152,7 @@ async function editServicio(id) {
   document.getElementById('id_empleado').value = s.id_empleado;
   document.getElementById('tipo_servicio').value = s.tipo_servicio;
   document.getElementById('costo').value = s.costo;
+  document.getElementById('kilometraje').value = s.kilometraje;
   document.getElementById('estado').value = s.estado;
 
   await loadAutoByCliente(s.id_cliente);
@@ -223,15 +177,14 @@ servicioForm.addEventListener('submit', async (e) => {
 
   const payload = {
     id_auto: parseInt(document.getElementById('id_auto').value),
+    id_cliente: parseInt(document.getElementById('id_cliente').value),
     id_empleado: parseInt(document.getElementById('id_empleado').value),
     fecha_servicio: document.getElementById('fecha_servicio').value,
     tipo_servicio: document.getElementById('tipo_servicio').value,
     costo: parseFloat(document.getElementById('costo').value) || 0,
+    kilometraje: parseInt(document.getElementById('kilometraje').value) || 0,
     estado: document.getElementById('estado').value
-  }; 
-
-  console.log("Payload:", JSON.stringify(payload)); 
-  console.log("PAYLOAD FINAL:", payload);
+  };
 
   if (id) {
     await fetch(`${API_BASE}/${id}`, {
