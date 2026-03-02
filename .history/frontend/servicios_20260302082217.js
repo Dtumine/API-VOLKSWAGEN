@@ -188,42 +188,7 @@ async function loadServicios() {
 // ===========================
 // 🔹 Editar
 // ===========================
-async function editServicio(id) {
 
-  const res = await fetch(`${API_BASE}/${id}`);
-  const r = await res.json();
-  const s = r.data || r;
-
-  console.log("Servicio edit:", s);
-
-  document.getElementById('id_servicio').value = s.id_servicio;
-
-  // 🔹 1. Traemos todos los autos
-  const autoRes = await fetch(API_AUTOS);
-  const autoJson = await autoRes.json();
-  const autos = autoJson.data || [];
-
-  // 🔹 2. Buscamos el auto del servicio
-  const auto = autos.find(a => a.id_auto == s.id_auto);
-
-  if (auto) {
-
-    // 🔹 3. Seteamos el cliente correcto
-    document.getElementById('id_cliente').value = auto.id_cliente;
-
-    // 🔹 4. Cargamos el box visual y el hidden input
-    await loadAutoByCliente(auto.id_cliente);
-
-    // 🔹 5. Nos aseguramos que el hidden tenga el auto correcto
-    document.getElementById('id_auto').value = auto.id_auto;
-  }
-
-  document.getElementById('id_empleado').value = s.id_empleado;
-  document.getElementById('tipo_servicio').value = s.tipo_servicio;
-  document.getElementById('costo').value = s.costo;
-  document.getElementById('estado').value = s.estado;
-  document.getElementById('fecha_servicio').value = s.fecha_servicio?.split('T')[0];
-}
 
 // ===========================
 // 🔹 Eliminar
